@@ -1,3 +1,4 @@
+import '@fontsource-variable/space-grotesk/wght.css'
 import './styles.css'
 import { getElement } from './dom.js'
 import { renderHome, setUpHome } from './home-view.js'
