@@ -1,0 +1,39 @@
+name: Bug report
+description: A PDF comes out wrong, a photo or signature won't save, or the app breaks.
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you expected, and what you got instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How can we reproduce it?
+      description: The steps, and what you filled in. Please don't attach real inspections, addresses, photos or signatures. A made-up inspection that shows the problem is perfect.
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: For example, Safari on an iPhone 15, or Chrome 131 on a Pixel 8
+    validations:
+      required: true
+  - type: dropdown
+    id: installed
+    attributes:
+      label: How do you open the app?
+      options:
+        - In the browser
+        - Added to the home screen
+    validations:
+      required: true
+  - type: input
+    id: reader
+    attributes:
+      label: PDF reader, for a problem with a PDF
+      placeholder: For example, Preview on macOS, or Adobe Acrobat

@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="en-CA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Free Move-In and Move-Out Inspection App | QuickCasa</title>
+    <meta
+      name="description"
+      content="Inspect a rental room by room on your phone, with photos, notes and signatures, then download a timestamped PDF report. Free, offline and no account." />
+    <meta
+      name="theme-color"
+      content="#5b1fe0"
+      media="(prefers-color-scheme: light)" />
+    <meta
+      name="theme-color"
+      content="#121019"
+      media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="module" src="./main.ts"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="#">QuickCasa <span>Rental Inspection</span></a>
+        <nav aria-label="Project links">
+          <a href="https://github.com/QuickCasa/rental-inspection">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <div class="banner banner-top" id="update-banner" hidden>
+        <p><strong>A new version of the app is ready.</strong></p>
+        <div class="actions">
+          <button type="button" class="button button-primary" id="update-now">
+            Update now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main id="home-view">
+      <section class="hero">
+        <div class="wrap">
+          <h1>Free move-in and move-out inspection app</h1>
+          <p class="lede">
+            Walk through a rental on your phone, room by room. Rate each item,
+            add notes and photos, collect signatures and download a PDF report
+            that shows when every photo was added and every signature was made.
+            It works offline, there's no account, and nothing leaves your
+            device.
+          </p>
+        </div>
+      </section>
+
+      <div class="wrap stack">
+        <form class="panel" id="start-form" novalidate>
+          <h2 class="panel-title">Start an inspection</h2>
+          <fieldset class="choices">
+            <legend>Type of inspection</legend>
+            <label class="choice"
+              ><input type="radio" name="kind" value="move-in" checked />
+              Move-in</label
+            >
+            <label class="choice"
+              ><input type="radio" name="kind" value="move-out" />
+              Move-out</label
+            >
+            <label class="choice"
+              ><input type="radio" name="kind" value="routine" /> Routine</label
+            >
+          </fieldset>
+          <div class="actions">
+            <button type="submit" class="button button-primary">
+              Start the inspection
+            </button>
+          </div>
+          <p class="hint">
+            Doing a move-out for a tenant whose move-in inspection is on this
+            device? Start it from their move-in inspection below instead, so
+            each item shows how it looked at move-in.
+          </p>
+        </form>
+
+        <section class="panel" aria-labelledby="list-title">
+          <h2 class="panel-title" id="list-title">
+            Inspections on this device
+          </h2>
+          <ul class="cards" id="inspection-list"></ul>
+          <p class="hint" id="empty-list" hidden>
+            None yet. Inspections you start are saved in this browser.
+          </p>
+          <div class="actions">
+            <label class="button button-secondary file-button">
+              <span>Open a backup file</span>
+              <input
+                type="file"
+                accept=".json,application/json"
+                class="visually-hidden"
+                id="open-backup" />
+            </label>
+          </div>
+          <p class="hint">
+            A backup file holds one inspection and its photos. Use it to move an
+            inspection to another device, or to keep it safe.
+          </p>
+          <p class="hint status" id="home-status" aria-live="polite"></p>
+        </section>
+
+        <p class="install-hint">
+          To use it like an app, add this page to your home screen. Once it has
+          loaded, it works without a connection.
+        </p>
+
+        <section class="prose">
+          <h2>How the move-out comparison works</h2>
+          <p>
+            Start the move-out from the move-in inspection, and every item shows
+            its move-in rating and notes next to the new ones. The report lists
+            everything rated worse than at move-in, so the landlord and the
+            tenant talk about the deposit from the same record.
+          </p>
+
+          <h2>Keep your records</h2>
+          <p>
+            Inspections are stored in this browser on this device, and nowhere
+            else. Clearing your browsing data deletes them. For every inspection
+            you need to keep, download the PDF and save a backup file, and send
+            the signed PDF to everyone who signed it.
+          </p>
+
+          <h2>Before you rely on it</h2>
+          <p>
+            Some provinces and states have their own inspection form, or rules
+            about when an inspection happens and who has to be there. Check your
+            local rules. The report records a rental's condition. It isn't legal
+            advice.
+          </p>
+
+          <h2>Why it's free</h2>
+          <p>
+            QuickCasa built this for landlords and renters and released it as
+            free software under the GNU Affero General Public License. Anyone
+            can read the code to check that photos stay on the device, and
+            anyone who runs a changed copy for other people has to share their
+            changes.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <main id="inspection-view" hidden>
+      <div class="wrap stack">
+        <div class="view-header">
+          <a class="back" href="#">All inspections</a>
+          <h1 id="inspection-title">Inspection</h1>
+        </div>
+
+        <div class="banner" id="baseline-banner" hidden>
+          <p id="baseline-text"></p>
+        </div>
+
+        <div class="banner" id="locked-banner" hidden>
+          <p>
+            <strong>This report is signed, so it can't be changed.</strong>
+            Editing it clears every signature, and everyone signs again.
+          </p>
+          <div class="actions">
+            <button
+              type="button"
+              class="button button-secondary"
+              id="unlock"
+              data-confirm="Click again to clear the signatures">
+              Edit the report
+            </button>
+          </div>
+        </div>
+
+        <form id="inspection-form" class="stack" novalidate>
+          <fieldset class="panel">
+            <legend><span class="step">1</span> Details</legend>
+            <div class="grid">
+              <label class="field">
+                <span>Type of inspection</span>
+                <select name="kind" data-field="kind">
+                  <option value="move-in">Move-in</option>
+                  <option value="move-out">Move-out</option>
+                  <option value="routine">Routine</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Inspection date</span>
+                <input name="date" data-field="date" type="date" />
+              </label>
+              <label class="field field-wide">
+                <span>Rental address and unit</span>
+                <input name="address" data-field="address" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span>Landlord or company</span>
+                <input
+                  name="landlord"
+                  data-field="landlord"
+                  autocomplete="organization" />
+              </label>
+              <label class="field">
+                <span>Tenants</span>
+                <textarea
+                  name="tenants"
+                  data-field="tenants"
+                  rows="2"
+                  aria-describedby="tenants-hint"></textarea>
+                <small id="tenants-hint"
+                  >One name per line. Each tenant gets a signature line.</small
+                >
+              </label>
+              <label class="field">
+                <span>Keys, fobs and remotes</span>
+                <textarea
+                  name="keys"
+                  data-field="keys"
+                  rows="2"
+                  placeholder="2 door keys, 1 mailbox key, 1 fob"></textarea>
+              </label>
+              <label class="field">
+                <span>Meter readings</span>
+                <textarea
+                  name="meters"
+                  data-field="meters"
+                  rows="2"
+                  placeholder="Electricity, gas and water, if the tenant pays them"></textarea>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step">2</span> Rooms</legend>
+            <p class="hint">
+              Open a room to rate each item. Add photos of anything that isn't
+              in good condition.
+            </p>
+            <div id="rooms" class="rooms"></div>
+            <div class="add-room">
+              <label class="field">
+                <span>Add a room</span>
+                <select id="room-choice"></select>
+              </label>
+              <button
+                type="button"
+                class="button button-secondary"
+                id="add-room">
+                Add the room
+              </button>
+            </div>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step">3</span> Notes</legend>
+            <label class="field">
+              <span>Anything else about the rental</span>
+              <textarea name="notes" data-field="notes" rows="4"></textarea>
+            </label>
+          </fieldset>
+
+          <fieldset class="panel">
+            <legend><span class="step">4</span> Sign-off</legend>
+            <label class="field">
+              <span>Comments from the tenant</span>
+              <textarea
+                name="tenantComments"
+                data-field="tenantComments"
+                rows="3"
+                aria-describedby="comments-hint"></textarea>
+              <small id="comments-hint"
+                >Anything the tenant disagrees with or wants on the record. Add
+                it before anyone signs.</small
+              >
+            </label>
+            <ul class="signers" id="signers"></ul>
+          </fieldset>
+
+          <div class="panel panel-actions">
+            <div class="actions">
+              <button
+                type="button"
+                class="button button-primary"
+                id="download-pdf"
+                data-unlocked>
+                Download the PDF report
+              </button>
+              <button
+                type="button"
+                class="button button-secondary"
+                id="share-pdf"
+                data-unlocked
+                hidden>
+                Share the PDF
+              </button>
+              <button
+                type="button"
+                class="button button-secondary"
+                id="save-backup"
+                data-unlocked>
+                Save a backup file
+              </button>
+            </div>
+            <p
+              class="hint status"
+              id="inspection-status"
+              aria-live="polite"></p>
+            <p class="hint">
+              Send the signed PDF to everyone who signed it. Save a backup file
+              to keep the inspection and its photos somewhere other than this
+              browser.
+            </p>
+          </div>
+
+          <div class="danger">
+            <button
+              type="button"
+              class="button button-secondary"
+              id="delete-inspection"
+              data-unlocked
+              data-confirm="Click again to delete it and its photos">
+              Delete this inspection
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>
+          Built by <a href="https://quickcasa.ai">QuickCasa</a> in Kitchener,
+          Ontario. Free software under the
+          <a href="https://www.gnu.org/licenses/agpl-3.0.html">GNU AGPL</a>,
+          with the source on
+          <a href="https://github.com/QuickCasa/rental-inspection">GitHub</a>.
+        </p>
+      </div>
+    </footer>
+
+    <dialog class="dialog" id="signature-dialog" aria-labelledby="sign-title">
+      <form method="dialog" class="stack-small" id="signature-form" novalidate>
+        <h2 id="sign-title">Sign the report</h2>
+        <p id="sign-role"></p>
+        <label class="field">
+          <span>Your name</span>
+          <input id="sign-name" autocomplete="name" />
+        </label>
+        <div class="field">
+          <span id="pad-label">Your signature</span>
+          <canvas
+            class="signature-pad"
+            id="signature-pad"
+            role="img"
+            aria-labelledby="pad-label"
+            aria-describedby="pad-hint"></canvas>
+          <small id="pad-hint"
+            >Sign in the box with a finger, a stylus or a mouse.</small
+          >
+        </div>
+        <p class="hint">
+          Signing confirms you took part in this inspection and have read the
+          report.
+        </p>
+        <p class="error" id="sign-error" aria-live="polite"></p>
+        <div class="actions">
+          <button
+            type="button"
+            class="button button-primary"
+            id="save-signature">
+            Save the signature
+          </button>
+          <button
+            type="button"
+            class="button button-secondary"
+            id="clear-signature">
+            Clear
+          </button>
+          <button
+            type="button"
+            class="button button-secondary"
+            id="cancel-sign">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="dialog" id="photo-dialog" aria-labelledby="photo-caption">
+      <div class="stack-small">
+        <img class="photo-large" id="photo-large" alt="" />
+        <p id="photo-caption"></p>
+        <div class="actions">
+          <button
+            type="button"
+            class="button button-secondary"
+            id="remove-photo"
+            data-confirm="Click again to remove it">
+            Remove this photo
+          </button>
+          <button
+            type="button"
+            class="button button-primary"
+            id="close-photo"
+            autofocus>
+            Close
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <template id="card-template">
+      <li class="card">
+        <h3 class="card-title"><a class="card-link" href="#"></a></h3>
+        <p class="card-meta"></p>
+        <p class="card-status"></p>
+        <div class="actions">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-action="start-move-out"
+            hidden>
+            Start the move-out
+          </button>
+          <button
+            type="button"
+            class="link-button"
+            data-action="delete"
+            data-confirm="Click again to delete">
+            Delete
+          </button>
+        </div>
+      </li>
+    </template>
+
+    <template id="room-template">
+      <details class="room">
+        <summary>
+          <span class="room-title"></span>
+          <span class="room-progress"></span>
+        </summary>
+        <div class="room-body">
+          <label class="field room-name">
+            <span>Room name</span>
+            <input data-room-field="name" autocomplete="off" />
+          </label>
+          <ol class="items"></ol>
+          <div class="actions">
+            <button
+              type="button"
+              class="button button-secondary"
+              data-action="add-item">
+              Add an item
+            </button>
+            <button
+              type="button"
+              class="link-button"
+              data-action="remove-room"
+              data-confirm="Click again to remove the room and its photos">
+              Remove this room
+            </button>
+          </div>
+        </div>
+      </details>
+    </template>
+
+    <template id="item-template">
+      <li class="item">
+        <div class="item-header">
+          <input
+            class="item-name"
+            data-item-field="name"
+            autocomplete="off"
+            aria-label="Item name" />
+          <button
+            type="button"
+            class="link-button"
+            data-action="remove-item"
+            data-confirm="Click again to remove">
+            Remove
+          </button>
+        </div>
+        <fieldset class="conditions">
+          <legend class="visually-hidden">Condition</legend>
+        </fieldset>
+        <p class="item-baseline" hidden></p>
+        <textarea
+          data-item-field="notes"
+          rows="2"
+          aria-label="Notes"
+          placeholder="Notes, such as where the damage is and how big"></textarea>
+        <div class="photos">
+          <ul class="thumbnails"></ul>
+          <label class="button button-secondary file-button photo-button">
+            <span>Add photos</span>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              class="visually-hidden"
+              data-action="add-photos" />
+          </label>
+        </div>
+      </li>
+    </template>
+  </body>
+</html>

@@ -1,0 +1,45 @@
+{
+  "name": "rental-inspection",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A free, open source move-in and move-out inspection app. Rate each room, add photos, collect signatures and download a timestamped PDF report, offline and with nothing leaving the device.",
+  "homepage": "https://quickcasa.github.io/rental-inspection/",
+  "bugs": {
+    "url": "https://github.com/QuickCasa/rental-inspection/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuickCasa/rental-inspection.git"
+  },
+  "license": "AGPL-3.0-only",
+  "author": "QuickCasa (https://quickcasa.ai)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 8792",
+    "typecheck": "tsc && tsc -p app/service-worker",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "npm run format:check && npm run typecheck && npm test && npm run lint && npm run build"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.1"
+  },
+  "devDependencies": {
+    "@quickcasa/eslint-config": "^1.0.0",
+    "@types/node": "^22.20.5",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "eslint": "^10.12.0",
+    "prettier": "^3.9.9",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3"
+  }
+}
