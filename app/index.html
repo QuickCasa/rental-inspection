@@ -448,7 +448,7 @@
         <div class="room-body">
           <label class="field room-name">
             <span>Room name</span>
-            <input data-room-field="name" autocomplete="off" />
+            <input name="room-name" data-room-field="name" autocomplete="off" />
           </label>
           <ol class="items"></ol>
           <div class="actions">
@@ -475,6 +475,7 @@
         <div class="item-header">
           <input
             class="item-name"
+            name="item-name"
             data-item-field="name"
             autocomplete="off"
             aria-label="Item name" />
@@ -491,6 +492,7 @@
         </fieldset>
         <p class="item-baseline" hidden></p>
         <textarea
+          name="item-notes"
           data-item-field="notes"
           rows="2"
           aria-label="Notes"
@@ -504,6 +506,7 @@
               accept="image/*"
               multiple
               class="visually-hidden"
+              name="photos"
               data-action="add-photos" />
           </label>
         </div>
